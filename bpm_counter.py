@@ -1,19 +1,22 @@
 #!/usr/bin/env python
 
-# TODO:
-# try C-c
-# remove traces of previous run
+# --- TODO ---
+# PrintStatus() not working properly
+# Adjust accuracy during run?
+# give acceleration information?
 
 # --- command line help ---
+
 import sys
 
 if len( sys.argv) > 1:
-    print """Display the frequency of keystrokes.
+    print """Display the frequency of keystrokes in 1/min (bpm).
 
     usage: blabla.""", sys.argv[ 0]
     exit ( 1)
 
 # --- helper functions ---
+
 import math
 
 def mean( A):
@@ -89,7 +92,7 @@ class FrequencyCounter( StopWatch):
         tt = self.ClockIn()        # the latest time
         t  = self.times[-2:-1][ 0] # the previous time
         diff = tt - t
- #  exception: we need a triggered time list!
+        #  exception: we need a triggered time list!
         l = len( self.times)
         if l < 2:
             raise IndexError('Counter must first be triggered')        
@@ -113,18 +116,16 @@ class FrequencyCounter( StopWatch):
 
     def PrintStatus( self):
         """"""
-        #i = len( self.frequencies)
         b = len( self.frequencies)
         k = len( self.times)
         print "Keystrokes:", k
         print "Beats counted:", b
-        bpm =  mean( self.frequencies)
-        std = standardDeviation( self.frequencies)
+        bpm =  round( mean( self.frequencies),1)
+        std = round( standardDeviation( self.frequencies), 2)
         print "Mean:", str( round( bpm, 1)), "bpm"
-        print "Standard deviation", str( round( std, 2)), "bpm"
+        print "Standard deviation", str( std), "bpm"
         bpm =  movingAverage( self.frequencies)
-        print "Moving Average:", str( round( bpm, 1)), "bpm"
-        
+        print "Moving Average:", str( bpm), "bpm"
         
 #from time import *
 import time
@@ -135,64 +136,94 @@ import string
 # --- interface stuff ---
 import curses
 
-def tui ( n):
+def endCurses():
+    """"""
+    curses.nocbreak(); stdscr.keypad( 0); curses.echo(); curses.curs_set( 1)
+    curses.endwin()                 # restore everything
+
+
+def tui ( n):                   # text user interface
     """Text User Interphase."""
+    stdscr.erase()              # remove vestiges from previous run
+    try:
+        Fc = FrequencyCounter()
     # addstr uses (y,x) co-ordinates!
-    Fc = FrequencyCounter()
-    stdscr.addstr(1,1, "Type 'q' to quit, SPACE to count and 'r' to restart.")
-    c = stdscr.getch()
-    Fc.TriggerCounter()
-    stdscr.addstr(3, 1, "Keystrokes: 1", curses.A_BOLD)
-    stdscr.addstr(4, 1, "Beats counted: 1", curses.A_DIM)
-    while 1:
+        stdscr.addstr(1,1, "Run " + str( n) + " waiting.", curses.A_BOLD)
+        stdscr.addstr(2,1, "Type 'q' to quit, SPACE to count and 'r' to restart.", curses.A_DIM)
+        stdscr.addstr(3, 1, "Keystrokes: 0", curses.A_BOLD)
+
         c = stdscr.getch()
-        if c == ord(' '):
-            Fc.Count()
-            # Keystrokes
-            l = len( Fc.Times())
-            stdscr.addstr(3, 1, "Keystrokes: " +  str( l), curses.A_BOLD)
-            # Beats counted
-            b = len( Fc.Frequencies())
-            stdscr.addstr(4, 1, "Beats counted: " +  str( b), curses.A_DIM)
-            # Mean
-            bpm = round( mean( Fc.Frequencies()), 1)
-            stdscr.addstr(5, 1, "Mean: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_BOLD)
-            # Moving average
-            bpm = round( movingAverage( Fc.Frequencies()), 1)
-            stdscr.addstr(6, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
-            # Standard & relative deviation
-            std = round( standardDeviation( Fc.Frequencies()), 1)
-            dev = round( 100 * std/bpm, 1) # relative deviation in percent
-            stdscr.addstr(7, 1, "Relative Deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
-            stdscr.addstr(8, 1, "Standard Deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
-        elif c == ord('r'):
-            return 0
-        elif c == ord('q'):
-            Fc.PrintStatus()
+        while not c == ord(' '):        # intercept wrong keys
+            if c == ord('q'):
+                return 1
+            c = stdscr.getch()
+            
+        Fc.TriggerCounter()
+        t0 = time.time()          # time.time() is the Wall (real world) time!
+        stdscr.addstr(1, 1, "Run " + str( n) + " active.      ", curses.A_BOLD)
+        stdscr.addstr(3, 1, "Keystrokes: 1", curses.A_BOLD)
+        stdscr.addstr(4, 1, "Beats counted: 0", curses.A_DIM)
+        while 1:
+            c = stdscr.getch()
+            if c == ord(' '):
+                if Fc.Count():
+                    curses.flash()  # not accurate enough
+                # Status
+                td = round( time.time() - t0, 1)
+                stdscr.addstr(1, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
+                # Keystrokes
+                l = len( Fc.Times())
+                stdscr.addstr(3, 1, "Keystrokes: " +  str( l), curses.A_BOLD)
+                # Beats counted
+                b = len( Fc.Frequencies())
+                stdscr.addstr(4, 1, "Beats counted: " +  str( b), curses.A_DIM)
+                # Mean
+                bpm = round( mean( Fc.Frequencies()), 1)
+                stdscr.addstr(5, 1, "Mean: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_BOLD)
+                # Moving average
+                bpm = round( movingAverage( Fc.Frequencies()), 1)
+                stdscr.addstr(6, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
+                # Standard & relative deviation
+                std = round( standardDeviation( Fc.Frequencies()), 1)
+                dev = round( 100 * std/bpm, 1) # relative deviation in percent
+                stdscr.addstr(7, 1, "Relative Deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
+                stdscr.addstr(8, 1, "Standard Deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
+
+            elif c == ord('r'):
+                return 0
+                
+            elif c == ord('q'):
+                endCurses()
+                Fc.PrintStatus()
+                return 1
+                
+    except KeyboardInterrupt:
+        c = stdscr.getch()      # discarding C-c
+        stdscr.addstr( 9, 1, "Do you really want to quit?  Print y", curses.A_BOLD)
+        c = stdscr.getch()
+        if c == ord('y'):
+            endCurses()
             return 1
         else:
-            curses.beep()
-        
-
+            stdscr.addstr( 9, 1, "                                           ")
+            return 0
+    
+# ----------------------------------------------------------------------
 # run interphase loop ------------------------------
-stdscr = curses.initscr()      # this is the screen exactly the terminal size
+
+stdscr = curses.initscr()      # this is a screen exactly the terminal size
 curses.noecho()                # do not show the keys
 curses.cbreak()                # react to keys without Carriage return
-stdscr.keypad(1)               # return nice keyboard shortcuts
+curses.curs_set( 0)            # 0: switch off cursor
+stdscr.keypad( 1)              # return nice keyboard shortcuts
 
 try:                      # force restoration of terminal
-    i = 1
+    i = 1                 # run counter
     while not tui( i):
         i = i + 1
 finally:
     # reversing the terminal stuff
-    curses.nocbreak(); stdscr.keypad(0); curses.echo()
-    curses.endwin()                 # restore everything
-    
-curses.nocbreak(); stdscr.keypad(0); curses.echo()
-curses.endwin()                 # restore everything
-
-print "Exit"
+    endCurses()
 
 exit()  #######################################################################
 
