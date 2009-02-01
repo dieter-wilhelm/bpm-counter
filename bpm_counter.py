@@ -24,6 +24,7 @@
 # Inc.; 675 Massachusetts Avenue; Cambridge, MA 02139, USA.
 
 # --- TODO ---
+# error with len(frequencies) == 0
 # check under Windows (cygwin?)
 # (command line option for) choice of precision
 # PrintStatus() not working properly
@@ -173,9 +174,9 @@ def tui ( n):                   # text user interface
     try:
         Fc = FrequencyCounter()
     # addstr uses (y,x) co-ordinates!
-        stdscr.addstr(1,1, "Run " + str( n) + " waiting.", curses.A_BOLD)
-        stdscr.addstr(2,1, "Type 'q' to quit, SPACE to count or 'r' to restart.", curses.A_DIM)
-        stdscr.addstr(3, 1, "Keystrokes: 0", curses.A_BOLD)
+        stdscr.addstr( 1, 1, "Run " + str( n) + " waiting.", curses.A_BOLD)
+        stdscr.addstr( 2, 1, "Type 'q' to quit, SPACE to count or 'r' to start anew.", curses.A_DIM)
+        stdscr.addstr( 4, 1, "Keystrokes: 0", curses.A_BOLD)
 
         c = stdscr.getch()
         while not c == ord(' '):        # intercept wrong keys
@@ -185,9 +186,9 @@ def tui ( n):                   # text user interface
             
         Fc.TriggerCounter()
         t0 = time.time()          # time.time() is the Wall (real world) time!
-        stdscr.addstr(1, 1, "Run " + str( n) + " active.      ", curses.A_BOLD)
-        stdscr.addstr(4, 1, "Keystrokes: 1", curses.A_BOLD)
-        stdscr.addstr(5, 1, "Beats counted: 0", curses.A_DIM)
+        stdscr.addstr( 1, 1, "Run " + str( n) + " active.      ", curses.A_BOLD)
+        stdscr.addstr( 4, 1, "Keystrokes: 1", curses.A_BOLD)
+        stdscr.addstr( 5, 1, "Beats counted: 0", curses.A_DIM)
         while 1:
             c = stdscr.getch()
             if c == ord(' '):
@@ -195,24 +196,29 @@ def tui ( n):                   # text user interface
                     curses.flash()  # not accurate enough
                 # Status
                 td = round( time.time() - t0, 1)
-                stdscr.addstr(1, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
+                stdscr.addstr( 1, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
                 # Keystrokes
                 l = len( Fc.Times())
-                stdscr.addstr(4, 1, "Keystrokes: " +  str( l), curses.A_BOLD)
+                stdscr.addstr( 4, 1, "Keystrokes: " +  str( l), curses.A_BOLD)
                 # Beats counted
                 b = len( Fc.Frequencies())
-                stdscr.addstr(5, 1, "Beats counted: " +  str( b), curses.A_DIM)
+                stdscr.addstr( 5, 1, "Beats counted: " +  str( b), curses.A_DIM)
                 # Mean
                 bpm = round( mean( Fc.Frequencies()), 1)
-                stdscr.addstr(6, 1, "Mean: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_BOLD)
+                stdscr.addstr( 6, 1, "Mean: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_BOLD)
                 # Moving average
                 bpm = round( movingAverage( Fc.Frequencies()), 1)
-                stdscr.addstr(7, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
+                stdscr.addstr( 7, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
                 # Standard & relative deviation
                 std = round( standardDeviation( Fc.Frequencies()), 1)
                 dev = round( 100 * std/bpm, 1) # relative deviation in percent
-                stdscr.addstr(8, 1, "Relative Deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
-                stdscr.addstr(9, 1, "Standard Deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
+                stdscr.addstr( 8, 1, "Relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
+                stdscr.addstr( 9, 1, "Standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
+                # Moving deviations
+                std = round( standardDeviation( Fc.Frequencies()[-10:]), 1) # last 10 
+                dev = round( 100 * std/bpm, 1) # relative deviation in percent
+                stdscr.addstr( 10, 1, "Moving relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
+                stdscr.addstr( 11, 1, "Moving standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
 
             elif c == ord('r'):
                 return 0
