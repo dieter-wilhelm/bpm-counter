@@ -250,48 +250,4 @@ finally:
     # reversing the terminal stuff
     endCurses()
 
-exit()  #######################################################################
-
-try:
-    ts = []
-
-    # addstr uses (y,x) co-ordinates!
-    stdscr.addstr(10,1,time.strftime("%Y-%m-%d",time.localtime())+ \
-                      " Type 'q' to quit, 'n' to count.")
-
-    i = 0
-    c = stdscr.getch()
-    stdscr.addstr(0, 1, "beat : 1")
-    # beginning
-    t = t0 = time.time()          # time.time() is the Wall (real world) time!
-    t1 = t2 = time.time()
-    if c == ord('q'):
-        raise IOError( "nothing to do")
-    while 1 :
-        c = stdscr.getch()
-        if c == ord( 'n'):
-            i = i + 1
-            t = time.time()
-            t2 = t              # t2 is current time t1 the time before
-            ts.append( t2 - t1)
-            stdscr.addstr( 0, 1, "No of beats: " + str( i),curses.A_BOLD) # beats
-        #        s = time.strftime( "%S", time.gmtime( t - t0))
-            stdscr.addstr( 1, 1, "Running for " + str( round( t2 - t0, 1)) + " s",curses.A_DIM)
-            b =  60*i / ( t - t0)
-            stdscr.addstr( 2, 1, "Overall beats per minute: " + string.rjust( str( round( b, 1)), 5) + " bpm")
-            stdscr.addstr( 3, 1, "Current beats per minute: " + string.rjust( str( round( 60 / ( t2 - t1), 1)), 5) + " bpm")
-            if i > 1:
-                d = stddev( ts) * 60
-                stdscr.addstr( 4, 1, "Overall stddev: " + string.rjust( str( round( d, 1)), 4) + " bpm")
-                stdscr.addstr( 5, 1, "Relative dev: " + string.rjust( str( round(d / b * 100, 1)), 4) + " %")
-            t1 = t2
-        elif c == ord( 'q') : break  # Exit the while()
-finally:
-    # the end, reversing the keyboard stuff
-    curses.nocbreak(); stdscr.keypad(0); curses.echo()
-    curses.endwin()                 # restore everything
-    print "beats counted:", i
-    if t != t0:
-        print "Overall:", str( round( 60*i / ( t - t0), 1)), "bpm"
-        print "Standard deviation", str( round( stddev( ts) * 60, 2)), "bpm"
- 
+#######################################################################
