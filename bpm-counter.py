@@ -141,17 +141,18 @@ class FrequencyCounter( StopWatch):
         return self.times
 
     def PrintStatus( self):
-        """"""
+        """bla"""
         b = len( self.frequencies)
         k = len( self.times)
         print "Keystrokes:", k
         print "Beats counted:", b
-        bpm =  round( mean( self.frequencies),1)
-        std = round( standardDeviation( self.frequencies), 2)
-        print "Mean:", str( round( bpm, 1)), "bpm"
-        print "Standard deviation", str( std), "bpm"
-        bpm =  movingAverage( self.frequencies)
-        print "Moving Average:", str( bpm), "bpm"
+        if b > 1:
+            bpm =  round( mean( self.frequencies),1)
+            std = round( standardDeviation( self.frequencies), 2)
+            print "Mean:", str( round( bpm, 1)), "bpm"
+            print "Standard deviation", str( std), "bpm"
+            bpm =  movingAverage( self.frequencies)
+            print "Moving Average:", str( bpm), "bpm"
         
 #from time import *
 import time
