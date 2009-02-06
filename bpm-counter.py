@@ -24,12 +24,11 @@
 # Inc.; 675 Massachusetts Avenue; Cambridge, MA 02139, USA.
 
 # --- TODO ---
-# error with len(frequencies) == 0
-# check under Windows (cygwin?)
 # (command line option for) choice of precision
 # PrintStatus() not working properly
 # Adjust accuracy during run?
-# give acceleration information?
+# Provide acceleration information?
+# GTK version?
 
 # --- command line help ---
 
@@ -176,7 +175,7 @@ def tui ( n):                   # text user interface
         Fc = FrequencyCounter()
     # addstr uses (y,x) co-ordinates!
         stdscr.addstr( 1, 1, "Run " + str( n) + " waiting.", curses.A_BOLD)
-        stdscr.addstr( 2, 1, "Type 'q' to quit, SPACE to count or 'r' to start anew.", curses.A_DIM)
+        stdscr.addstr( 2, 1, "Press a key to start counting or 'q' to quit.", curses.A_DIM)
         stdscr.addstr( 4, 1, "Keystrokes: 0", curses.A_BOLD)
 
         c = stdscr.getch()
@@ -192,7 +191,14 @@ def tui ( n):                   # text user interface
         stdscr.addstr( 5, 1, "Beats counted: 0", curses.A_DIM)
         while 1:
             c = stdscr.getch()
-            if c == ord(' '):
+            stdscr.addstr( 2, 1, "Type 'q' to quit or 'r' to reset.         ", curses.A_DIM)
+            if c == ord('r'):
+                return 0
+            elif c == ord('q'):
+                endCurses()
+                Fc.PrintStatus()
+                return 1
+            else:
                 if Fc.Count():
                     curses.flash()  # not accurate enough
                 # Status
@@ -206,7 +212,8 @@ def tui ( n):                   # text user interface
                 stdscr.addstr( 5, 1, "Beats counted: " +  str( b), curses.A_DIM)
                 # Mean
                 bpm = round( mean( Fc.Frequencies()), 1)
-                stdscr.addstr( 6, 1, "Mean: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_BOLD)
+                stdscr.addstr( 6, 1, "Mean: ", curses.A_BOLD)
+                stdscr.addstr( 6, 8, string.rjust( str( bpm), 5) + " bpm", curses.A_BOLD,curses.A_REVERSE)
                 # Moving average
                 bpm = round( movingAverage( Fc.Frequencies()), 1)
                 stdscr.addstr( 7, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
@@ -220,14 +227,6 @@ def tui ( n):                   # text user interface
                 dev = round( 100 * std/bpm, 1) # relative deviation in percent
                 stdscr.addstr( 10, 1, "Moving relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
                 stdscr.addstr( 11, 1, "Moving standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
-
-            elif c == ord('r'):
-                return 0
-                
-            elif c == ord('q'):
-                endCurses()
-                Fc.PrintStatus()
-                return 1
                 
     except KeyboardInterrupt:
         c = stdscr.getch()      # discarding C-c
