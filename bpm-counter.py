@@ -37,7 +37,7 @@ import sys
 if len( sys.argv) > 1:
     print """Display the frequency of keystrokes in 1/min (bpm).
 
-    usage: blabla.""", sys.argv[ 0]
+    usage: This is self evident ;-).""", sys.argv[ 0]
     exit ( 1)
 
 # --- helper functions ---
@@ -84,7 +84,7 @@ import string
 class StopWatch():
     """Container of points in time measured in s."""
     def __init__( self):
-        """bla"""
+        """Resetting the container."""
         self.times = []
         
     def ClockIn( self):
@@ -100,13 +100,13 @@ class StopWatch():
 
 class FrequencyCounter( StopWatch):
     """Frequencies are counted in 1/min."""
-    tolerance = 0.3             # max deviation of time differences
+    tolerance = 0.2             # max deviation of time differences
     def __init__( self):
         """so what?"""
         StopWatch.__init__( self)
         self.frequencies = []
-        self.t_min = 0             # smallest time diff
-        self.t_max = 0             # biggest time diff
+        self.td_min = 0             # smallest time diff
+        self.td_max = 0             # biggest time diff
         
     def TriggerCounter( self):
         """Starting the stopWatch for the first time."""
@@ -123,13 +123,17 @@ class FrequencyCounter( StopWatch):
             raise IndexError('Counter must first be triggered')        
         if l == 2:
             tol = FrequencyCounter.tolerance
-            self.t_min = ( 1 - tol) * diff
-            self.t_max = ( 1 + tol) * diff
-        if diff > self.t_max or diff < self.t_min:
+            self.td_min = ( 1 - tol) * diff
+            self.td_max = ( 1 + tol) * diff
+        if diff > self.td_max or diff < self.td_min:
             return 1             # count not accurate enough
         else:
             self.frequencies.append( 60 / diff )
             return 0
+
+    def Range( self):
+        """Return the valid range of frequencies."""
+        return 60 / self.td_max, 60 / self.td_min
 
     def Frequencies( self):
         """Return frequency list."""
@@ -173,26 +177,56 @@ def tui ( n):                   # text user interface
     stdscr.erase()              # remove vestiges from previous run
     try:
         Fc = FrequencyCounter()
-    # addstr uses (y,x) co-ordinates!
-        stdscr.addstr( 1, 1, "Run " + str( n) + " waiting.", curses.A_BOLD)
-        stdscr.addstr( 2, 1, "Press a key to start counting or 'q' to quit.", curses.A_DIM)
-        stdscr.addstr( 4, 1, "Keystrokes: 0", curses.A_BOLD)
-
+        # addstr uses (y,x) co-ordinates!
+        stdscr.addstr( 1, 1, "Press a key to start counting, 'q' to quit.", curses.A_DIM)
+        stdscr.addstr( 3, 1, "Run " + str( n) + " waiting.", curses.A_BOLD)
+        stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
+# --- first count
         c = stdscr.getch()
-        while not c == ord(' '):        # intercept wrong keys
-            if c == ord('q'):
-                return 1
-            c = stdscr.getch()
-            
+        if c == ord('q'):
+            endCurses()
+            return 1
         Fc.TriggerCounter()
         t0 = time.time()          # time.time() is the Wall (real world) time!
-        stdscr.addstr( 1, 1, "Run " + str( n) + " active.      ", curses.A_BOLD)
-        stdscr.addstr( 4, 1, "Keystrokes: 1", curses.A_BOLD)
-        stdscr.addstr( 5, 1, "Beats counted: 0", curses.A_DIM)
+        y = 1
+        stdscr.addstr( y, 1, "Press 'q' to quit, 'n' to start a new count.    ", curses.A_DIM)
+        y = 3
+        stdscr.addstr( y, 1, "Run " + str( n) + " active.    ", curses.A_BOLD)
+        y = 5
+        stdscr.addstr( y, 1, "One keystroke", curses.A_DIM)
+# --- second count
+        c = stdscr.getch()
+        if c == ord('n'):
+            return 0
+        elif c == ord('q'):
+            endCurses()
+            Fc.PrintStatus()
+            return 1
+        Fc.Count()
+        # documenation 1 DIM
+        # Status 3 BOLD
+        y = 3
+        td = round( time.time() - t0, 1)
+        stdscr.addstr( y, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
+        # Keystrokes 5 DIM
+        y = 5
+        l = len( Fc.Times())
+        stdscr.addstr( y, 1, "Keystrokes: " +  str( l), curses.A_DIM)
+        # Keystrokes discarded 6 BOLD
+        # Range 7 DIM
+        r1 = round( Fc.Range()[ 0], 1)
+        r2 = round( Fc.Range()[ 1], 1)
+        y = 7
+        stdscr.addstr( y, 1, "Valid beat range: " + str( r1) + " - " + str( r2) + " bpm", curses.A_DIM)
+        # Mean 8 BOLD
+        y = 8
+        bpm = round( mean( Fc.Frequencies()), 1)
+        stdscr.addstr( y, 1, "Mean: ", curses.A_BOLD)
+        stdscr.addstr( y, 9, string.rjust( str( bpm), 5) + " bpm ", curses.A_REVERSE)
+# --- following counts
         while 1:
             c = stdscr.getch()
-            stdscr.addstr( 2, 1, "Type 'q' to quit or 'r' to reset.         ", curses.A_DIM)
-            if c == ord('r'):
+            if c == ord('n'):
                 return 0
             elif c == ord('q'):
                 endCurses()
@@ -201,32 +235,42 @@ def tui ( n):                   # text user interface
             else:
                 if Fc.Count():
                     curses.flash()  # not accurate enough
-                # Status
+                # Status BOLD
+                y = 3
                 td = round( time.time() - t0, 1)
-                stdscr.addstr( 1, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
-                # Keystrokes
+                stdscr.addstr( y, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
+                # Keystrokes 5 DIM
                 l = len( Fc.Times())
-                stdscr.addstr( 4, 1, "Keystrokes: " +  str( l), curses.A_BOLD)
-                # Beats counted
-                b = len( Fc.Frequencies())
-                stdscr.addstr( 5, 1, "Beats counted: " +  str( b), curses.A_DIM)
-                # Mean
-                bpm = round( mean( Fc.Frequencies()), 1)
-                stdscr.addstr( 6, 1, "Mean: ", curses.A_BOLD)
-                stdscr.addstr( 6, 8, string.rjust( str( bpm), 5) + " bpm", curses.A_BOLD,curses.A_REVERSE)
+                y = 5
+                stdscr.addstr( y, 1, "Keystrokes: " +  str( l), curses.A_DIM)
+                # discarded strokes 6 BOLD
+                y = 6
+                b = len( Fc.Times()) - len( Fc.Frequencies()) - 1
+                stdscr.addstr( y, 1, "Skipped keystrokes: " +  str( b), curses.A_BOLD)
+                # Range 7 DIM remains constant
+                # Mean 8 BOLD
+                y = 8
+                bpm = round( mean( Fc.Frequencies()), 2)
+                stdscr.addstr( y, 1, "Mean: ", curses.A_BOLD)
+                stdscr.addstr( y, 9, string.rjust( str( bpm), 5) + " bpm ", curses.A_REVERSE)
                 # Moving average
+                y = 9
                 bpm = round( movingAverage( Fc.Frequencies()), 1)
-                stdscr.addstr( 7, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
+                stdscr.addstr( y, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
                 # Standard & relative deviation
                 std = round( standardDeviation( Fc.Frequencies()), 1)
                 dev = round( 100 * std/bpm, 1) # relative deviation in percent
-                stdscr.addstr( 8, 1, "Relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
-                stdscr.addstr( 9, 1, "Standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
+                y = 10
+                stdscr.addstr( y, 1, "Relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
+                y = 11
+                stdscr.addstr( y, 1, "Standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
                 # Moving deviations
                 std = round( standardDeviation( Fc.Frequencies()[-10:]), 1) # last 10 
                 dev = round( 100 * std/bpm, 1) # relative deviation in percent
-                stdscr.addstr( 10, 1, "Moving relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
-                stdscr.addstr( 11, 1, "Moving standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
+                y = 12
+                stdscr.addstr( y, 1, "Moving relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
+                y = 13
+                stdscr.addstr( y, 1, "Moving standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
                 
     except KeyboardInterrupt:
         c = stdscr.getch()      # discarding C-c
