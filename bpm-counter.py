@@ -214,16 +214,18 @@ def tui ( n):                   # text user interface
         stdscr.addstr( y, 1, "Keystrokes: " +  str( l), curses.A_DIM)
         # Keystrokes discarded 6 BOLD
         # Range 7 DIM
-        r1 = round( Fc.Range()[ 0], 1)
-        r2 = round( Fc.Range()[ 1], 1)
+        r1 = int( round( Fc.Range()[ 0]))
+        r2 = int( round( Fc.Range()[ 1]))
         y = 7
-        stdscr.addstr( y, 1, "Valid beat range: " + str( r1) + " - " + str( r2) + " bpm", curses.A_DIM)
+        stdscr.addstr( y, 1, "Valid beat range: [" + str( r1) + " .. " + str( r2) + "] bpm", curses.A_DIM)
         # Mean 8 BOLD
         y = 8
-        bpm = round( mean( Fc.Frequencies()), 1)
+        bpm = int( round( mean( Fc.Frequencies())))
         stdscr.addstr( y, 1, "Mean: ", curses.A_BOLD)
-        stdscr.addstr( y, 9, string.rjust( str( bpm), 5) + " bpm ", curses.A_REVERSE)
-# --- following counts
+        stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
+        if bpm < 100:   # overwrite possible A_REVERSE from counts faster than 99 bpm
+                    stdscr.addstr( y, 15, " ")
+ # --- following counts
         while 1:
             c = stdscr.getch()
             if c == ord('n'):
@@ -250,9 +252,11 @@ def tui ( n):                   # text user interface
                 # Range 7 DIM remains constant
                 # Mean 8 BOLD
                 y = 8
-                bpm = round( mean( Fc.Frequencies()), 2)
-                stdscr.addstr( y, 1, "Mean: ", curses.A_BOLD)
-                stdscr.addstr( y, 9, string.rjust( str( bpm), 5) + " bpm ", curses.A_REVERSE)
+                bpm = int( round( mean( Fc.Frequencies())))
+                stdscr.addstr( y, 1, "Mean:", curses.A_BOLD)
+                stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
+                if bpm < 100:   # overwrite possible `A_REVERSE' from counts faster than 99 bpm
+                    stdscr.addstr( y, 15, " ", curses.A_BOLD)
                 # Moving average
                 y = 9
                 bpm = round( movingAverage( Fc.Frequencies()), 1)
