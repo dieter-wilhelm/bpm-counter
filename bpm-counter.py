@@ -24,11 +24,17 @@
 # Inc.; 675 Massachusetts Avenue; Cambridge, MA 02139, USA.
 
 # --- TODO ---
+# expectation for a 95 % level
 # (command line option for) choice of precision
 # PrintStatus() not working properly
 # Adjust accuracy during run?
 # Provide acceleration information?
-# GTK version?
+# TCL/TK, GTK version for our mice lovers and Windows pampered?
+
+"""Timer for counting something regular, like the beats of music.
+"""
+
+__author__ = 'dieter@duenenhof-wilhelm.de (Dieter Wilhelm)'
 
 # --- command line help ---
 
@@ -37,7 +43,9 @@ import sys
 if len( sys.argv) > 1:
     print """Display the frequency of keystrokes in 1/min (bpm).
 
-    usage: This is self evident ;-).""", sys.argv[ 0]
+    usage: This is self evident ;-).
+Version 1.0
+""", sys.argv[ 0]
     exit ( 1)
 
 # --- helper functions ---
@@ -260,21 +268,21 @@ def tui ( n):                   # text user interface
                 # Moving average
                 y = 9
                 bpm = round( movingAverage( Fc.Frequencies()), 1)
-                stdscr.addstr( y, 1, "Moving average: " +  string.rjust( str( bpm), 5) + " bpm", curses.A_DIM)
+                stdscr.addstr( y, 1, "Moving average: " +  str( bpm) + " bpm ", curses.A_DIM)
                 # Standard & relative deviation
                 std = round( standardDeviation( Fc.Frequencies()), 1)
                 dev = round( 100 * std/bpm, 1) # relative deviation in percent
                 y = 10
-                stdscr.addstr( y, 1, "Relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
+                stdscr.addstr( y, 1, "Relative deviation: " +  str( dev) + " %  ", curses.A_BOLD)
                 y = 11
-                stdscr.addstr( y, 1, "Standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
+                stdscr.addstr( y, 1, "Standard deviation: " +  str( std) + " bpm ", curses.A_DIM)
                 # Moving deviations
                 std = round( standardDeviation( Fc.Frequencies()[-10:]), 1) # last 10 
                 dev = round( 100 * std/bpm, 1) # relative deviation in percent
                 y = 12
-                stdscr.addstr( y, 1, "Moving relative deviation: " +  string.rjust( str( dev), 5) + " %", curses.A_BOLD)
+                stdscr.addstr( y, 1, "Moving relative deviation: " +  str( dev) + " % ", curses.A_BOLD)
                 y = 13
-                stdscr.addstr( y, 1, "Moving standard deviation: " +  string.rjust( str( std), 5) + " bpm", curses.A_DIM)
+                stdscr.addstr( y, 1, "Moving standard deviation: " +  str( std) + " bpm ", curses.A_DIM)
                 
     except KeyboardInterrupt:
         c = stdscr.getch()      # discarding C-c
