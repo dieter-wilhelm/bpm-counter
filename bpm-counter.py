@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
@@ -24,7 +25,7 @@
 # Inc.; 675 Massachusetts Avenue; Cambridge, MA 02139, USA.
 
 # --- TODO ---
-# expectation for a 95 % level
+# expectation for a 95 % confidence level
 # (command line option for) choice of precision
 # PrintStatus() not working properly
 # Adjust accuracy during run?
@@ -191,7 +192,7 @@ def tui ( n):                   # text user interface
         stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
 # --- first count
         c = stdscr.getch()
-        if c == ord('q'):
+        if c == ord('q') or c == ord('Q') :
             endCurses()
             return 1
         Fc.TriggerCounter()
@@ -204,9 +205,9 @@ def tui ( n):                   # text user interface
         stdscr.addstr( y, 1, "One keystroke", curses.A_DIM)
 # --- second count
         c = stdscr.getch()
-        if c == ord('n'):
+        if c == ord('n') or c == ord('N') :
             return 0
-        elif c == ord('q'):
+        elif c == ord('q') or c == ord('Q') :
             endCurses()
             Fc.PrintStatus()
             return 1
@@ -236,9 +237,9 @@ def tui ( n):                   # text user interface
  # --- following counts
         while 1:
             c = stdscr.getch()
-            if c == ord('n'):
+            if c == ord('n') or c == ord('N') :
                 return 0
-            elif c == ord('q'):
+            elif c == ord('q') or c == ord('Q') :
                 endCurses()
                 Fc.PrintStatus()
                 return 1
@@ -262,9 +263,12 @@ def tui ( n):                   # text user interface
                 y = 8
                 bpm = int( round( mean( Fc.Frequencies())))
                 stdscr.addstr( y, 1, "Mean:", curses.A_BOLD)
-                stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
-                if bpm < 100:   # overwrite possible `A_REVERSE' from counts faster than 99 bpm
-                    stdscr.addstr( y, 15, " ", curses.A_BOLD)
+                if len( Fc.Frequencies()) > 9 :
+                    stdscr.addstr( y, 6, " " + str( bpm) + " ± 0.0 bpm ", curses.A_REVERSE)
+                else :
+                    stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
+                # if bpm < 100:   # overwrite possible `A_REVERSE' fraom counts faster than 99 bpm
+                #     stdscr.addstr( y, 15, " ", curses.A_BOLD)
                 # Moving average
                 y = 9
                 bpm = round( movingAverage( Fc.Frequencies()), 1)
@@ -312,4 +316,7 @@ finally:
     # reversing the terminal stuff
     endCurses()
 
+# Local variables:
+# coding: utf-8
+# end:
 #######################################################################
