@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
+# curses don't understand utf8 (yet)
+
 
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
@@ -55,20 +57,20 @@ import math
 
 def mean( A):
     """Mean of the list A."""
-    l = float( len( A))
-    return sum( A) / l
+    l = len( A)
+    return sum( A) / float( l)
 
 def variance( A):
     """Variance (n-1) of the list A.
-Return 0 if len( A) < 1.
+Return 0 if len( A) < 2.
     """
     m = mean( A)
-    l = float( len( A))
+    l = len( A)
     v = 0
     for x in A:
        v = v + ( x - m)**2
     if l > 1:
-        return v / ( l - 1)
+        return v / float( l - 1)
     else:
         return 0.
 
@@ -79,7 +81,7 @@ def standardDeviation( A):
 def movingAverage( A, n = 5):
     """List A's mean of the last n members.
 
-If len( A) < n, return the mean of less than n elements."""
+If len( A) < n, return the mean of the less than n elements."""
     return mean( A[ -n:]) 
 
 # --- class definitions ---
@@ -102,7 +104,7 @@ class StopWatch():
         self.times.append( t)
         return t
     
-    def Times (self):
+    def Times( self):
         """Return the time list."""
         return self.times
         
@@ -230,10 +232,10 @@ def tui ( n):                   # text user interface
         # Mean 8 BOLD
         y = 8
         bpm = int( round( mean( Fc.Frequencies())))
-        stdscr.addstr( y, 1, "Mean: ", curses.A_BOLD)
+        stdscr.addstr( y, 1, "Mean:", curses.A_BOLD)
         stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
-        if bpm < 100:   # overwrite possible A_REVERSE from counts faster than 99 bpm
-                    stdscr.addstr( y, 15, " ")
+        # if bpm < 100:   # overwrite possible A_REVERSE from counts faster than 99 bpm
+        #             stdscr.addstr( y, 15, " ")
  # --- following counts
         while 1:
             c = stdscr.getch()
@@ -263,30 +265,32 @@ def tui ( n):                   # text user interface
                 y = 8
                 bpm = int( round( mean( Fc.Frequencies())))
                 stdscr.addstr( y, 1, "Mean:", curses.A_BOLD)
-                if len( Fc.Frequencies()) > 9 :
-                    stdscr.addstr( y, 6, " " + str( bpm) + " ± 0.0 bpm ", curses.A_REVERSE)
+                std = round( standardDeviation( Fc.Frequencies()), 1)
+                if len( Fc.Frequencies()) > 4 :
+                    fl = len( Fc.Frequencies())
+                    acc = round( 1.96 * std / math.sqrt( fl), 2)
+                    stdscr.addstr( y, 6, " " + str( bpm) + " +/- " + str( acc) + " bpm ", curses.A_REVERSE)
                 else :
                     stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
                 # if bpm < 100:   # overwrite possible `A_REVERSE' fraom counts faster than 99 bpm
                 #     stdscr.addstr( y, 15, " ", curses.A_BOLD)
                 # Moving average
                 y = 9
-                bpm = round( movingAverage( Fc.Frequencies()), 1)
-                stdscr.addstr( y, 1, "Moving average: " +  str( bpm) + " bpm ", curses.A_DIM)
+                m_bpm = round( movingAverage( Fc.Frequencies()), 1)
+                stdscr.addstr( y, 1, "Moving average: " +  str( m_bpm) + " bpm ", curses.A_DIM)
                 # Standard & relative deviation
-                std = round( standardDeviation( Fc.Frequencies()), 1)
-                dev = round( 100 * std/bpm, 1) # relative deviation in percent
+                dev = round( 100 * std / float( bpm), 1) # relative deviation in percent
                 y = 10
                 stdscr.addstr( y, 1, "Relative deviation: " +  str( dev) + " %  ", curses.A_BOLD)
                 y = 11
                 stdscr.addstr( y, 1, "Standard deviation: " +  str( std) + " bpm ", curses.A_DIM)
                 # Moving deviations
-                std = round( standardDeviation( Fc.Frequencies()[-10:]), 1) # last 10 
-                dev = round( 100 * std/bpm, 1) # relative deviation in percent
+                m_std = round( standardDeviation( Fc.Frequencies()[-10:]), 1) # last 10 
+                m_dev = round( 100 * m_std / m_bpm, 1) # relative moving deviation in percent
                 y = 12
-                stdscr.addstr( y, 1, "Moving relative deviation: " +  str( dev) + " % ", curses.A_BOLD)
+                stdscr.addstr( y, 1, "Moving relative deviation: " +  str( m_dev) + " % ", curses.A_BOLD)
                 y = 13
-                stdscr.addstr( y, 1, "Moving standard deviation: " +  str( std) + " bpm ", curses.A_DIM)
+                stdscr.addstr( y, 1, "Moving standard deviation: " +  str( m_std) + " bpm ", curses.A_DIM)
                 
     except KeyboardInterrupt:
         c = stdscr.getch()      # discarding C-c
@@ -317,6 +321,6 @@ finally:
     endCurses()
 
 # Local variables:
-# coding: utf-8
+# coding: iso-8859-1
 # end:
 #######################################################################
