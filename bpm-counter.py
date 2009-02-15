@@ -39,6 +39,21 @@
 
 __author__ = 'dieter@duenenhof-wilhelm.de (Dieter Wilhelm)'
 
+# --- os checking ---
+# necessitated by a bug in the cygwin port of ncurses? 2009-02-11
+
+import os
+import string
+
+os_name = os.uname()[ 0]
+host_name = os.uname()[ 1]
+
+cygwin = 0
+if string.find( os_name, "CYGWIN") > -1:
+    cygwin = 1
+
+print "Operating system:", os_name
+
 # --- command line help ---
 
 import sys
@@ -49,7 +64,7 @@ if len( sys.argv) > 1:
     usage: This is self evident ;-).
 Version 1.0
 """, sys.argv[ 0]
-    exit ( 1)
+    exit( 1)
 
 # --- helper functions ---
 
@@ -90,7 +105,6 @@ If len( A) < n, return the mean of the less than n elements."""
 import time
  # time.clock() is the CPU time!
  # time.time() is the Wall (real world) time!
-import string
 
 class StopWatch():
     """Container of points in time measured in s."""
@@ -172,14 +186,15 @@ class FrequencyCounter( StopWatch):
 import time
  # time.clock() is the CPU time!
  # time.time() is the Wall (real world) time!
-import string
 
 # --- interface stuff ---
 import curses
 
 def endCurses():
     """"""
-    curses.nocbreak(); stdscr.keypad( 0); curses.echo(); curses.curs_set( 1)
+    curses.nocbreak(); stdscr.keypad( 0); curses.echo()
+    if not cygwin:
+        curses.curs_set( 1)
     curses.endwin()                 # restore everything
 
 
@@ -190,35 +205,50 @@ def tui ( n):                   # text user interface
         Fc = FrequencyCounter()
         # addstr uses (y,x) co-ordinates!
         stdscr.addstr( 1, 1, "Press a key to start counting, 'q' to quit.", curses.A_DIM)
-        stdscr.addstr( 3, 1, "Run " + str( n) + " waiting.", curses.A_BOLD)
+        stdscr.addstr( 3, 1, "Run " + str( n) + " on " + host_name + " waiting.", curses.A_BOLD)
         stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
 # --- first count
-        c = stdscr.getch()
+        c = stdscr.getch()      # is also triggered by mouse keys!
+        
+        # if c == curses.KEY_MOUSE:
+        #     id, x, y, z, button = curses.getmouse()
+        #     s = "Mouse-Ereignis bei (%d ; %d ; %d), ID= %d, button = %d" % (x, y, z, id, button)
+        #     stdscr.addstr(0, 1, s)
+
         if c == ord('q') or c == ord('Q') :
             endCurses()
             return 1
+
         Fc.TriggerCounter()
         t0 = time.time()          # time.time() is the Wall (real world) time!
         y = 1
         stdscr.addstr( y, 1, "Press 'q' to quit, 'n' to start a new count.    ", curses.A_DIM)
         y = 3
-        stdscr.addstr( y, 1, "Run " + str( n) + " active.    ", curses.A_BOLD)
+        stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name + " active.    ", curses.A_BOLD)
         y = 5
         stdscr.addstr( y, 1, "One keystroke", curses.A_DIM)
 # --- second count
         c = stdscr.getch()
+
+        # if c == curses.KEY_MOUSE:
+        #     id, x, y, z, button = curses.getmouse()
+        #     s = "Mouse-Ereignis bei (%d ; %d ; %d), ID= %d, button = %d" % (x, y, z, id, button)
+        #     stdscr.addstr(0, 1, s)
+
         if c == ord('n') or c == ord('N') :
             return 0
+
         elif c == ord('q') or c == ord('Q') :
             endCurses()
             Fc.PrintStatus()
             return 1
+
         Fc.Count()
         # documenation 1 DIM
         # Status 3 BOLD
         y = 3
         td = round( time.time() - t0, 1)
-        stdscr.addstr( y, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
+        stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s.", curses.A_BOLD)
         # Keystrokes 5 DIM
         y = 5
         l = len( Fc.Times())
@@ -239,19 +269,26 @@ def tui ( n):                   # text user interface
  # --- following counts
         while 1:
             c = stdscr.getch()
+
             if c == ord('n') or c == ord('N') :
                 return 0
+
             elif c == ord('q') or c == ord('Q') :
                 endCurses()
                 Fc.PrintStatus()
                 return 1
+
             else:
+                # if c == curses.KEY_MOUSE:
+                #     id, x, y, z, button = curses.getmouse()
+                #     s = "Mouse-Ereignis bei (%d ; %d ; %d), ID= %d, button = %d" % (x, y, z, id, button)
+                #     stdscr.addstr(0, 1, s)
                 if Fc.Count():
                     curses.flash()  # not accurate enough
                 # Status BOLD
                 y = 3
                 td = round( time.time() - t0, 1)
-                stdscr.addstr( y, 1, "Run " + str( n) + " active for " + str( td) + " s.", curses.A_BOLD)
+                stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s.", curses.A_BOLD)
                 # Keystrokes 5 DIM
                 l = len( Fc.Times())
                 y = 5
@@ -264,29 +301,39 @@ def tui ( n):                   # text user interface
                 # Mean 8 BOLD
                 y = 8
                 bpm = int( round( mean( Fc.Frequencies())))
-                stdscr.addstr( y, 1, "Mean:", curses.A_BOLD)
-                std = round( standardDeviation( Fc.Frequencies()), 1)
-                if len( Fc.Frequencies()) > 4 :
-                    fl = len( Fc.Frequencies())
-                    acc = round( 1.96 * std / math.sqrt( fl), 2)
-                    stdscr.addstr( y, 6, " " + str( bpm) + " +/- " + str( acc) + " bpm ", curses.A_REVERSE)
-                else :
-                    stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
-                # if bpm < 100:   # overwrite possible `A_REVERSE' fraom counts faster than 99 bpm
-                #     stdscr.addstr( y, 15, " ", curses.A_BOLD)
+                stdscr.addstr( y, 1, "Mean: ", curses.A_BOLD)
+                std = round( standardDeviation( Fc.Frequencies()), 2)
+                fl = len( Fc.Frequencies())
+                # +/- 1.96 is the normalised gaussian variable for the confidence level of 95 % (both sided)
+                # Studend distribution (for the mean with unknown variance) approximated with Gaussian
+                acc = round( 1.96 * std / math.sqrt( fl), 2)
+                if acc > 2 : # precision above 2 bpm: red alert 8-)
+                    stdscr.addstr( str( bpm), curses.color_pair( 1) | curses.A_BOLD)
+                elif acc > 1:    # accuracy above 1 bpm: yellow
+                    stdscr.addstr( str( bpm), curses.color_pair( 2) | curses.A_BOLD)
+                else :          # green
+                    stdscr.addstr( str( bpm), curses.color_pair( 3) | curses.A_BOLD)
+                stdscr.addstr(" +/- ")
+                if fl < 15:      # red: approximation of the student distribution with gaussian still bad
+                    stdscr.addstr( str( acc), curses.color_pair( 1) | curses.A_BOLD)
+                elif fl < 30:   # yellow not yet good enough
+                    stdscr.addstr( str( acc), curses.color_pair( 2) | curses.A_BOLD)
+                else:
+                    stdscr.addstr( str( acc), curses.color_pair( 3) | curses.A_BOLD)
+                stdscr.addstr(" bpm ", curses.A_BOLD)
                 # Moving average
                 y = 9
                 m_bpm = round( movingAverage( Fc.Frequencies()), 1)
                 stdscr.addstr( y, 1, "Moving average: " +  str( m_bpm) + " bpm ", curses.A_DIM)
                 # Standard & relative deviation
-                dev = round( 100 * std / float( bpm), 1) # relative deviation in percent
+                dev = round( 100 * std / float( bpm), 2) # relative deviation in percent
                 y = 10
                 stdscr.addstr( y, 1, "Relative deviation: " +  str( dev) + " %  ", curses.A_BOLD)
                 y = 11
                 stdscr.addstr( y, 1, "Standard deviation: " +  str( std) + " bpm ", curses.A_DIM)
                 # Moving deviations
-                m_std = round( standardDeviation( Fc.Frequencies()[-10:]), 1) # last 10 
-                m_dev = round( 100 * m_std / m_bpm, 1) # relative moving deviation in percent
+                m_std = round( standardDeviation( Fc.Frequencies()[-10:]), 2) # last 10 
+                m_dev = round( 100 * m_std / m_bpm, 2) # relative moving deviation in percent
                 y = 12
                 stdscr.addstr( y, 1, "Moving relative deviation: " +  str( m_dev) + " % ", curses.A_BOLD)
                 y = 13
@@ -306,11 +353,26 @@ def tui ( n):                   # text user interface
 # ----------------------------------------------------------------------
 # run interphase loop ------------------------------
 
+# screen init        
 stdscr = curses.initscr()      # this is a screen exactly the terminal size
+
+# color init
+curses.start_color()
+curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+
+# mouse init
+# avail, oldmask = curses.mousemask(curses.BUTTON1_PRESSED)
+# curses.mousemask(avail)
+
+# misc
 curses.noecho()                # do not show the keys
 curses.cbreak()                # react to keys without Carriage return
-curses.curs_set( 0)            # 0: switch off cursor
+if not cygwin:
+   curses.curs_set( 0)            # 0: switch off cursor
 stdscr.keypad( 1)              # return nice keyboard shortcuts
+#stdscr.border(0,0,0,0,0,0,0,0)
 
 try:                      # force restoration of terminal
     i = 1                 # run counter
