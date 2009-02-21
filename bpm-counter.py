@@ -39,6 +39,14 @@
 # can't switch curser off under cygwin
 # curses.flush() not working under cygwin
 
+# --- History ---
+#
+# V 1.1
+# 1.) Precision indicators are higlighted in colours
+# 2.) Statistical error estimation of the mean
+#
+# V 1.0
+
 """Timer for counting something regular, like the beats of music.
 """
 
