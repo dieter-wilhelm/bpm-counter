@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
-# curses don't understand utf8 (yet)
+# ncurses doesn't understand utf8 (yet)
 
 
 # Copyright (C) 2009  H. Dieter Wilhelm
@@ -27,12 +27,17 @@
 # Inc.; 675 Massachusetts Avenue; Cambridge, MA 02139, USA.
 
 # --- TODO ---
-# expectation for a 95 % confidence level
+
+# -- not so important ones --
 # (command line option for) choice of precision
 # PrintStatus() not working properly
 # Adjust accuracy during run?
 # Provide acceleration information?
-# TCL/TK, GTK version for our mice lovers and Windows pampered?
+# TCL/TK, GTK or cygwin version for our mice lovers and Windows pampered?
+
+# -- issues/bugs --
+# can't switch curser off under cygwin
+# curses.flush() not working under cygwin
 
 """Timer for counting something regular, like the beats of music.
 """
@@ -201,10 +206,11 @@ def endCurses():
 def tui ( n):                   # text user interface
     """Text User Interphase."""
     stdscr.erase()              # remove vestiges from previous run
+    max_x, max_y = stdscr.getmaxyx()
     try:
         Fc = FrequencyCounter()
         # addstr uses (y,x) co-ordinates!
-        stdscr.addstr( 1, 1, "Press a key to start counting, 'q' to quit.", curses.A_DIM)
+        stdscr.addstr( 1, 1, "Press a key to start counting, \"q\" to quit.", curses.A_DIM)
         stdscr.addstr( 3, 1, "Run " + str( n) + " on " + host_name + " waiting.", curses.A_BOLD)
         stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
 # --- first count
@@ -222,7 +228,7 @@ def tui ( n):                   # text user interface
         Fc.TriggerCounter()
         t0 = time.time()          # time.time() is the Wall (real world) time!
         y = 1
-        stdscr.addstr( y, 1, "Press 'q' to quit, 'n' to start a new count.    ", curses.A_DIM)
+        stdscr.addstr( y, 1, "Press \"q\" to quit, \"n\" to start a new count.    ", curses.A_DIM)
         y = 3
         stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name + " active.    ", curses.A_BOLD)
         y = 5
@@ -263,10 +269,11 @@ def tui ( n):                   # text user interface
         y = 8
         bpm = int( round( mean( Fc.Frequencies())))
         stdscr.addstr( y, 1, "Mean:", curses.A_BOLD)
-        stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.A_REVERSE)
+        stdscr.addstr( y, 6, " " + str( bpm) + " bpm ", curses.color_pair( 1) | curses.A_BOLD)
         # if bpm < 100:   # overwrite possible A_REVERSE from counts faster than 99 bpm
         #             stdscr.addstr( y, 15, " ")
  # --- following counts
+        yy = 14                 # for the moving averages
         while 1:
             c = stdscr.getch()
 
@@ -338,6 +345,21 @@ def tui ( n):                   # text user interface
                 stdscr.addstr( y, 1, "Moving relative deviation: " +  str( m_dev) + " % ", curses.A_BOLD)
                 y = 13
                 stdscr.addstr( y, 1, "Moving standard deviation: " +  str( m_std) + " bpm ", curses.A_DIM)
+                # set of moving averages
+                y = 14
+                if fl == 10:
+                    stdscr.addstr( y, 1, "Moving average: ", curses.A_BOLD)
+                elif fl == 20:
+                    stdscr.addstr( y, 1, "Moving averages: ", curses.A_BOLD)
+                max_y, max_x = stdscr.getmaxyx()
+                if fl % 10 == 0 and yy < max_y:
+                    try :
+                        stdscr.addstr( yy, 18, str( m_bpm) + " bpm", curses.A_DIM)
+                    except _curses.error:
+                        pass
+                    yy = yy + 1
+                    
+
                 
     except KeyboardInterrupt:
         c = stdscr.getch()      # discarding C-c
@@ -362,7 +384,7 @@ curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
-# mouse init
+# mouse init # mouse input (mouse queue?) seems to be not precise enough 
 # avail, oldmask = curses.mousemask(curses.BUTTON1_PRESSED)
 # curses.mousemask(avail)
 
