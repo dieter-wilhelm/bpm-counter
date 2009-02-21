@@ -6,7 +6,7 @@
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
 # Created: 2009-01
-# Version: 1.0
+# Version: 1.1
 
 # This code is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -40,11 +40,12 @@
 # curses.flush() not working under cygwin
 
 # --- History ---
-#
+
 # V 1.1
 # 1.) Precision indicators are higlighted in colours
 # 2.) Statistical error estimation of the mean
-#
+# 3.) Log of moving averages (of 10 hits, every 10)
+
 # V 1.0
 
 """Timer for counting something regular, like the beats of music.
@@ -315,7 +316,7 @@ def tui ( n):                   # text user interface
                 # Range 7 DIM remains constant
                 # Mean 8 BOLD
                 y = 8
-                bpm = int( round( mean( Fc.Frequencies())))
+                bpm = round( mean( Fc.Frequencies()), 1)
                 stdscr.addstr( y, 1, "Mean: ", curses.A_BOLD)
                 std = round( standardDeviation( Fc.Frequencies()), 2)
                 fl = len( Fc.Frequencies())
@@ -324,18 +325,26 @@ def tui ( n):                   # text user interface
                 acc = round( 1.96 * std / math.sqrt( fl), 2)
                 if acc > 2 : # precision above 2 bpm: red alert 8-)
                     stdscr.addstr( str( bpm), curses.color_pair( 1) | curses.A_BOLD)
-                elif acc > 1:    # accuracy above 1 bpm: yellow
+                elif acc > 1 :    # accuracy above 1 bpm: yellow
                     stdscr.addstr( str( bpm), curses.color_pair( 2) | curses.A_BOLD)
                 else :          # green
                     stdscr.addstr( str( bpm), curses.color_pair( 3) | curses.A_BOLD)
                 stdscr.addstr(" +/- ")
-                if fl < 15:      # red: approximation of the student distribution with gaussian still bad
+                if fl < 15 :      # red: approximation of the student distribution with gaussian still bad
                     stdscr.addstr( str( acc), curses.color_pair( 1) | curses.A_BOLD)
-                elif fl < 30:   # yellow not yet good enough
+                elif fl < 30 :   # yellow not yet good enough
                     stdscr.addstr( str( acc), curses.color_pair( 2) | curses.A_BOLD)
                 else:
                     stdscr.addstr( str( acc), curses.color_pair( 3) | curses.A_BOLD)
                 stdscr.addstr(" bpm ", curses.A_BOLD)
+                if acc < 2 and fl > 9:     # give the masses nicely rounded results
+                    stdscr.addstr(y, 34, "=> ", curses.A_BOLD) # indent a bit that the result is better sticking out
+                    stdscr.addstr( str( int( round( bpm))), curses.A_REVERSE | curses.A_BOLD)
+                    stdscr.addstr(" bpm", curses.A_REVERSE | curses.A_BOLD)
+                    stdscr.addstr(" ") # remove possible vestiges from rounding process(es)
+                else :
+                    stdscr.addstr(y, 34, "       ") # remove possible invalidated results
+
                 # Moving average
                 y = 9
                 m_bpm = round( movingAverage( Fc.Frequencies()), 1)
