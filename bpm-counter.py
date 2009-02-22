@@ -28,23 +28,26 @@
 
 # --- TODO ---
 
-# -- not so important ones --
-# (command line option for) choice of precision
-# PrintStatus() not working properly
-# Adjust accuracy during run?
-# Provide acceleration information?
 # TCL/TK, GTK or cygwin version for our mice lovers and Windows pampered?
 
+# -- not so important ones --
+# version variable
+# (command line option for) choice of precision
+# Adjust accuracy during run, seems not necessary?
+# show active time in min and sec format?
+# Provide acceleration information, sufficiently done with moving average set?
+
 # -- issues/bugs --
+# PrintStatus() not working properly
 # can't switch curser off under cygwin
 # curses.flush() not working under cygwin
 
 # --- History ---
 
 # V 1.1
-# 1.) Precision indicators are higlighted in colours
-# 2.) Statistical error estimation of the mean
-# 3.) Log of moving averages (of 10 hits, every 10)
+# 1.) Statistical error estimation of the mean and rounded result display
+# 2.) Log of moving averages (of 10 strokes, every 10 beats)
+# 3.) Deviation in msec
 
 # V 1.0
 
@@ -220,7 +223,8 @@ def tui ( n):                   # text user interface
         Fc = FrequencyCounter()
         # addstr uses (y,x) co-ordinates!
         stdscr.addstr( 1, 1, "Press a key to start counting, \"q\" to quit.", curses.A_DIM)
-        stdscr.addstr( 3, 1, "Run " + str( n) + " on " + host_name + " waiting.", curses.A_BOLD)
+        stdscr.addstr( 3, 1, "Run " + str( n) + " on " + host_name + " waiting", curses.A_BOLD)
+        stdscr.addstr( " (Ver. 1.1) ", curses.A_BOLD)
         stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
 # --- first count
         c = stdscr.getch()      # is also triggered by mouse keys!
@@ -239,7 +243,8 @@ def tui ( n):                   # text user interface
         y = 1
         stdscr.addstr( y, 1, "Press \"q\" to quit, \"n\" to start a new count.    ", curses.A_DIM)
         y = 3
-        stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name + " active.    ", curses.A_BOLD)
+        stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name + " active", curses.A_BOLD)
+        stdscr.addstr( " (Ver. 1.1)   ", curses.A_BOLD)
         y = 5
         stdscr.addstr( y, 1, "One keystroke", curses.A_DIM)
 # --- second count
@@ -263,7 +268,8 @@ def tui ( n):                   # text user interface
         # Status 3 BOLD
         y = 3
         td = round( time.time() - t0, 1)
-        stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s.", curses.A_BOLD)
+        stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s", curses.A_BOLD)
+        stdscr.addstr( " (Ver. 1.1)", curses.A_BOLD)
         # Keystrokes 5 DIM
         y = 5
         l = len( Fc.Times())
@@ -304,7 +310,8 @@ def tui ( n):                   # text user interface
                 # Status BOLD
                 y = 3
                 td = round( time.time() - t0, 1)
-                stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s.", curses.A_BOLD)
+                stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s", curses.A_BOLD)
+                stdscr.addstr( " (Ver. 1.1)", curses.A_BOLD)
                 # Keystrokes 5 DIM
                 l = len( Fc.Times())
                 y = 5
@@ -329,7 +336,7 @@ def tui ( n):                   # text user interface
                     stdscr.addstr( str( bpm), curses.color_pair( 2) | curses.A_BOLD)
                 else :          # green
                     stdscr.addstr( str( bpm), curses.color_pair( 3) | curses.A_BOLD)
-                stdscr.addstr(" +/- ")
+                stdscr.addstr(" bpm +/- ", curses.A_BOLD)
                 if fl < 15 :      # red: approximation of the student distribution with gaussian still bad
                     stdscr.addstr( str( acc), curses.color_pair( 1) | curses.A_BOLD)
                 elif fl < 30 :   # yellow not yet good enough
@@ -343,7 +350,7 @@ def tui ( n):                   # text user interface
                     stdscr.addstr(" bpm", curses.A_REVERSE | curses.A_BOLD)
                     stdscr.addstr(" ") # remove possible vestiges from rounding process(es)
                 else :
-                    stdscr.addstr(y, 34, "       ") # remove possible invalidated results
+                    stdscr.addstr(y, 34, "                     ") # remove possible invalidated results
 
                 # Moving average
                 y = 9
@@ -354,7 +361,8 @@ def tui ( n):                   # text user interface
                 y = 10
                 stdscr.addstr( y, 1, "Relative deviation: " +  str( dev) + " %  ", curses.A_BOLD)
                 y = 11
-                stdscr.addstr( y, 1, "Standard deviation: " +  str( std) + " bpm ", curses.A_DIM)
+                stdscr.addstr( y, 1, "Standard deviation: " +  str( std) + " bpm <=> ", curses.A_DIM)
+                stdscr.addstr( str( int( round( 10 * dev / (bpm / 60)))) + " msec ", curses.A_DIM)
                 # Moving deviations
                 m_std = round( standardDeviation( Fc.Frequencies()[-10:]), 2) # last 10 
                 m_dev = round( 100 * m_std / m_bpm, 2) # relative moving deviation in percent
@@ -365,15 +373,12 @@ def tui ( n):                   # text user interface
                 # set of moving averages
                 y = 14
                 if fl == 10:
-                    stdscr.addstr( y, 1, "Moving average: ", curses.A_BOLD)
+                    stdscr.addstr( y, 1, "Moving average (per 10 beats):", curses.A_BOLD)
                 elif fl == 20:
-                    stdscr.addstr( y, 1, "Moving averages: ", curses.A_BOLD)
+                    stdscr.addstr( y, 1, "Moving averages (per 10 beats):", curses.A_BOLD)
                 max_y, max_x = stdscr.getmaxyx()
                 if fl % 10 == 0 and yy < max_y:
-                    try :
-                        stdscr.addstr( yy, 18, str( m_bpm) + " bpm", curses.A_DIM)
-                    except _curses.error:
-                        pass
+                    stdscr.addstr( yy, 33, str( m_bpm) + " bpm", curses.A_BOLD)
                     yy = yy + 1
                     
 
