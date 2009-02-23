@@ -6,7 +6,7 @@
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
 # Created: 2009-01
-# Version: 1.1
+# Version: 1.2
 
 # This code is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -32,6 +32,7 @@
 
 # -- not so important ones --
 # version variable
+# include a metronome function
 # (command line option for) choice of precision
 # Adjust accuracy during run, seems not necessary?
 # show active time in min and sec format?
@@ -44,12 +45,12 @@
 
 # --- History ---
 
+# V 1.2
+
 # V 1.1
 # 1.) Statistical error estimation of the mean and rounded result display
 # 2.) Log of moving averages (of 10 strokes, every 10 beats)
 # 3.) Deviation in msec
-
-# V 1.0
 
 """Timer for counting something regular, like the beats of music.
 """
@@ -110,7 +111,7 @@ def standardDeviation( A):
     """Standard deviation of the list A."""
     return math.sqrt( variance( A))
     
-def movingAverage( A, n = 5):
+def movingAverage( A, n = 10):
     """List A's mean of the last n members.
 
 If len( A) < n, return the mean of the less than n elements."""
@@ -224,7 +225,7 @@ def tui ( n):                   # text user interface
         # addstr uses (y,x) co-ordinates!
         stdscr.addstr( 1, 1, "Press a key to start counting, \"q\" to quit.", curses.A_DIM)
         stdscr.addstr( 3, 1, "Run " + str( n) + " on " + host_name + " waiting", curses.A_BOLD)
-        stdscr.addstr( " (Ver. 1.1) ", curses.A_BOLD)
+        stdscr.addstr( " (Ver. 1.2) ", curses.A_BOLD)
         stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
 # --- first count
         c = stdscr.getch()      # is also triggered by mouse keys!
@@ -244,7 +245,7 @@ def tui ( n):                   # text user interface
         stdscr.addstr( y, 1, "Press \"q\" to quit, \"n\" to start a new count.    ", curses.A_DIM)
         y = 3
         stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name + " active", curses.A_BOLD)
-        stdscr.addstr( " (Ver. 1.1)   ", curses.A_BOLD)
+        stdscr.addstr( " (Ver. 1.2)   ", curses.A_BOLD)
         y = 5
         stdscr.addstr( y, 1, "One keystroke", curses.A_DIM)
 # --- second count
@@ -269,7 +270,7 @@ def tui ( n):                   # text user interface
         y = 3
         td = round( time.time() - t0, 1)
         stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s", curses.A_BOLD)
-        stdscr.addstr( " (Ver. 1.1)", curses.A_BOLD)
+        stdscr.addstr( " (Ver. 1.2)", curses.A_BOLD)
         # Keystrokes 5 DIM
         y = 5
         l = len( Fc.Times())
@@ -311,7 +312,7 @@ def tui ( n):                   # text user interface
                 y = 3
                 td = round( time.time() - t0, 1)
                 stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  + " active for " + str( td) + " s", curses.A_BOLD)
-                stdscr.addstr( " (Ver. 1.1)", curses.A_BOLD)
+                stdscr.addstr( " (Ver. 1.2)", curses.A_BOLD)
                 # Keystrokes 5 DIM
                 l = len( Fc.Times())
                 y = 5
