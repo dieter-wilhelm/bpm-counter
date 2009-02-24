@@ -197,7 +197,7 @@ class FrequencyCounter( StopWatch):
             std = round( standardDeviation( self.frequencies), 2)
             print "Mean:", str( round( bpm, 1)), "bpm"
             print "Standard deviation", str( std), "bpm"
-            bpm =  movingAverage( self.frequencies)
+            bpm =  movingAverage( self.frequencies, 10)
             print "Moving Average:", str( bpm), "bpm"
         
 #from time import *
@@ -353,9 +353,9 @@ def tui ( n):                   # text user interface
                 else :
                     stdscr.addstr(y, 34, "                     ") # remove possible invalidated results
 
-                # Moving average
+                # Moving average: 10 samples for moving targets
                 y = 9
-                m_bpm = round( movingAverage( Fc.Frequencies()), 1)
+                m_bpm = round( movingAverage( Fc.Frequencies(), 10), 1) # leave it with 10 samples
                 stdscr.addstr( y, 1, "Moving average: " +  str( m_bpm) + " bpm ", curses.A_DIM)
                 # Standard & relative deviation
                 dev = round( 100 * std / float( bpm), 2) # relative deviation in percent
@@ -365,7 +365,7 @@ def tui ( n):                   # text user interface
                 stdscr.addstr( y, 1, "Standard deviation: " +  str( std) + " bpm <=> ", curses.A_DIM)
                 stdscr.addstr( str( int( round( 10 * dev / (bpm / 60)))) + " msec ", curses.A_DIM)
                 # Moving deviations
-                m_std = round( standardDeviation( Fc.Frequencies()[-10:]), 2) # last 10 
+                m_std = round( standardDeviation( Fc.Frequencies()[-10:]), 2) # lets stay consistent with 10 samples
                 m_dev = round( 100 * m_std / m_bpm, 2) # relative moving deviation in percent
                 y = 12
                 stdscr.addstr( y, 1, "Moving relative deviation: " +  str( m_dev) + " % ", curses.A_BOLD)
