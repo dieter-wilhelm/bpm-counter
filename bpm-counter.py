@@ -345,13 +345,13 @@ def tui ( n):                   # text user interface
                 else:
                     stdscr.addstr( str( acc), curses.color_pair( 3) | curses.A_BOLD)
                 stdscr.addstr(" bpm ", curses.A_BOLD)
-                if acc < 2 and fl > 9:     # give the masses nicely rounded results
+                if acc < 2 and fl > 9:     # give the masses a nicely rounded result
                     stdscr.addstr(y, 34, "=> ", curses.A_BOLD) # indent a bit that the result is better sticking out
-                    stdscr.addstr( str( int( round( bpm))), curses.A_REVERSE | curses.A_BOLD)
-                    stdscr.addstr(" bpm", curses.A_REVERSE | curses.A_BOLD)
+                    stdscr.addstr( " " + str( int( round( bpm))), curses.A_REVERSE | curses.A_BOLD)
+                    stdscr.addstr(" bpm ", curses.A_REVERSE | curses.A_BOLD)
                     stdscr.addstr(" ") # remove possible vestiges from rounding process(es)
-                else :
-                    stdscr.addstr(y, 34, "                     ") # remove possible invalidated results
+                else :          # overwright invalid results (acc >= 2)
+                    stdscr.addstr(y, 34, "                     ") 
 
                 # Moving average: 10 samples for moving targets
                 y = 9
