@@ -332,7 +332,9 @@ def tui ( n):                   # text user interface
                 stdscr.addstr( str( bpm), curses.color_pair( 2) | curses.A_BOLD)
             else :          # green
                 stdscr.addstr( str( bpm), curses.color_pair( 3) | curses.A_BOLD)
-            stdscr.addstr(" bpm +/- ", curses.A_BOLD)
+            stdscr.addstr(" bpm ", curses.A_BOLD)
+            stdscr.addch( curses.ACS_PLMINUS)
+            stdscr.addstr( " ")
             if fl < 15 :      # red: approximation of the student distribution with gaussian still bad
                 stdscr.addstr( str( acc), curses.color_pair( 1) | curses.A_BOLD)
             elif fl < 30 :   # yellow not yet good enough
