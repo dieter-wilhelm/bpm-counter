@@ -2,7 +2,6 @@
 # -*- coding: iso-8859-1 -*-
 # ncurses doesn't understand utf8 (yet)
 
-
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
 # Created: 2009-01
@@ -31,6 +30,7 @@
 # TCL/TK, GTK or cygwin version for our mice lovers and Windows pampered?
 
 # -- not so important ones --
+
 # version variable
 # include a metronome function
 # (command line option for) choice of precision
@@ -38,16 +38,18 @@
 # show active time in min and sec format?
 # Provide acceleration information, sufficiently done with moving average set?
 
-# -- issues/bugs --
+# --- Issues/Bugs ---
+
 # PrintStatus() not working properly
 # can't switch curser off under cygwin
 # curses.flush() not working under cygwin
 
 # --- History ---
 
-# V 1.2
+# -- V 1.2 --
 
-# V 1.1
+# -- V 1.1 --
+
 # 1.) Statistical error estimation of the mean and rounded result display
 # 2.) Log of moving averages (of 10 strokes, every 10 beats)
 # 3.) Deviation in msec
@@ -200,21 +202,16 @@ class FrequencyCounter( StopWatch):
             bpm =  movingAverage( self.frequencies, 10)
             print "Moving Average:", str( bpm), "bpm"
         
-#from time import *
-import time
- # time.clock() is the CPU time!
- # time.time() is the Wall (real world) time!
-
 # --- interface stuff ---
 import curses
 
 def endCurses():
-    """"""
+    """
+    """
     curses.nocbreak(); stdscr.keypad( 0); curses.echo()
     if not cygwin:
         curses.curs_set( 1)
     curses.endwin()                 # restore everything
-
 
 def tui ( n):                   # text user interface
     """Text User Interphase."""
@@ -382,8 +379,6 @@ def tui ( n):                   # text user interface
                     stdscr.addstr( yy, 33, str( m_bpm) + " bpm", curses.A_BOLD)
                     yy = yy + 1
                     
-
-                
     except KeyboardInterrupt:
         c = stdscr.getch()      # discarding C-c
         stdscr.addstr( 9, 1, "Do you really want to quit?  Print y", curses.A_BOLD)
@@ -427,6 +422,7 @@ finally:
     # reversing the terminal stuff
     endCurses()
 
+# Emacs    
 # Local variables:
 # coding: iso-8859-1
 # end:
