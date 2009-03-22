@@ -38,6 +38,10 @@
 
 # --- Issues/Bugs ---
 
+# When resizing the terminal frame the original terminal state is not
+# preserved
+
+# -- minor stuff --
 # can't switch curser off under cygwin
 # curses.flush() not working under cygwin
 
@@ -46,6 +50,7 @@
 # -- V 1.2 --
 
 # 1.) Squashed printout bug when leaving bpm-counter
+# 2.) Resizing of the terminal does not change the count any longer
 
 # -- V 1.1 --
 
@@ -224,8 +229,11 @@ def tui ( n):                   # text user interface
     stdscr.addstr( " (Ver. 1.2) ", curses.A_BOLD)
     stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
 # --- first count
-    c = stdscr.getch()      # is also triggered by mouse keys!
     
+    c = stdscr.getch()      # is also triggered by mouse keys and resizing!
+    while c == curses.KEY_RESIZE or c == -1:
+        c = stdscr.getch()
+        
     # if c == curses.KEY_MOUSE:
     #     id, x, y, z, button = curses.getmouse()
     #     s = "Mouse-Ereignis bei (%d ; %d ; %d), ID= %d, button = %d" % (x, y, z, id, button)
@@ -245,6 +253,8 @@ def tui ( n):                   # text user interface
     stdscr.addstr( y, 1, "One keystroke", curses.A_DIM)
 # --- second count
     c = stdscr.getch()
+    while c == curses.KEY_RESIZE or c == -1 :
+        c = stdscr.getch()
     
     # if c == curses.KEY_MOUSE:
     #     id, x, y, z, button = curses.getmouse()
@@ -253,7 +263,7 @@ def tui ( n):                   # text user interface
 
     if c == ord('n') or c == ord('N') :
         return 0
-
+    
     elif c == ord('q') or c == ord('Q') :
         endCurses()
         Fc.PrintStatus()
@@ -287,6 +297,8 @@ def tui ( n):                   # text user interface
     yy = 14                 # for the moving averages
     while 1:
         c = stdscr.getch()
+        while c == curses.KEY_RESIZE or c == -1 :
+            c = stdscr.getch()
         
         if c == ord('n') or c == ord('N') :
             return 0
@@ -343,9 +355,9 @@ def tui ( n):                   # text user interface
                 stdscr.addstr( str( acc), curses.color_pair( 3) | curses.A_BOLD)
             stdscr.addstr(" bpm ", curses.A_BOLD)
             if acc < 2 and fl > 9:     # give the masses a nicely rounded result
-                stdscr.addstr(y, 34, "=> ", curses.A_BOLD) # indent a bit that the result is better sticking out
-                stdscr.addstr( " " + str( int( round( bpm))), curses.A_REVERSE | curses.A_BOLD)
-                stdscr.addstr(" bpm ", curses.A_REVERSE | curses.A_BOLD)
+                stdscr.addstr(y, 30, "=>  ", curses.A_BOLD) # indent a bit that the result is better sticking out
+                stdscr.addstr( " " + str( int( round( bpm))), curses.A_REVERSE)
+                stdscr.addstr(" bpm ",  curses.A_REVERSE)
                 stdscr.addstr(" ") # remove possible vestiges from rounding process(es)
             else :          # overwright invalid results (acc >= 2)
                 stdscr.addstr(y, 34, "                     ") 
@@ -391,6 +403,7 @@ curses.start_color()
 curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
 # mouse init # mouse input (mouse queue?) seems to be not precise enough 
 # avail, oldmask = curses.mousemask(curses.BUTTON1_PRESSED)
