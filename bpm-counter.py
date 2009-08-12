@@ -27,7 +27,7 @@
 
 # --- TODO ---
 
-# TCL/TK, GTK version for our mice lovers and Windows pampered?
+# TCL/TK, GTK version for our mice lovers and Windows pampered? ;-)
 
 # -- not so important ones --
 
@@ -42,7 +42,7 @@
 # state is not preserved any longer.
 
 # -- minor stuff --
-# can't switch curser off under cygwin
+# curser is not switched off under cygwin
 # curses.flush() not working under cygwin
 
 # --- History ---
@@ -89,7 +89,7 @@ import sys
 if len( sys.argv) > 1:
     print """Display the frequency of keystrokes in 1/min (bpm).
 
-    usage: This is self evident ;-).
+    usage: This should be self evident ;-).
 Version 1.0
 """, sys.argv[ 0]
     exit( 1)
@@ -133,7 +133,7 @@ If len( A) < n, return the mean of less than n elements."""
 #from time import *
 import time
  # time.clock() is the CPU time!
- # time.time() is the Wall (real world) time!
+ # time.time() is the wall (real world) time!
 
 class StopWatch():
     """Container of points in time measured in s."""
@@ -171,7 +171,7 @@ class FrequencyCounter( StopWatch):
         tt = self.ClockIn()        # the latest time
         t  = self.times[-2:-1][ 0] # the previous time
         diff = tt - t
-        #  exception: we need a triggered time list!
+        # raise exception: first we need a triggered time list!
         l = len( self.times)
         if l < 2:
             raise IndexError('Counter must first be triggered')        
@@ -227,7 +227,7 @@ def endCurses():
         curses.curs_set( 1)
     curses.endwin()                 # restore everything
 
-def tui ( n):                   # text user interface
+def tui ( n):                   # text user interface 8-)
     """Text User Interphase."""
     stdscr.erase()              # remove vestiges from previous run
     max_x, max_y = stdscr.getmaxyx()
@@ -254,7 +254,7 @@ def tui ( n):                   # text user interface
         return 1
     
     Fc.TriggerCounter()
-    t0 = time.time()          # time.time() is the Wall (real world) time!
+    t0 = time.time()          # time.time() is the wall (real world) time!
     y = 1
     s = "Press \"q\" to quit, \"n\" to start a new count.    "
     stdscr.addstr( y, 1, s, curses.A_DIM)
@@ -360,30 +360,30 @@ def tui ( n):                   # text user interface
             # Studend distribution (for the mean with unknown variance)
             # approximated with Gaussian
             acc = round( 1.96 * std / math.sqrt( fl), 2)
-            if acc > 2 : # precision above 2 bpm: red alert 8-)
+            if acc > 2 : # precision above 2 bpm: red alert 8-(
                 stdscr.addstr( str( bpm), curses.color_pair( 1) | curses.A_BOLD)
-            elif acc > 1 :    # accuracy above 1 bpm: yellow
+            elif acc > 1 :    # accuracy above 1 bpm: yellow 8-S
                 stdscr.addstr( str( bpm), curses.color_pair( 2) | curses.A_BOLD)
-            else :          # green
+            else :          # green 8-)
                 stdscr.addstr( str( bpm), curses.color_pair( 3) | curses.A_BOLD)
             stdscr.addstr(" bpm ", curses.A_BOLD)
             stdscr.addch( curses.ACS_PLMINUS)
             stdscr.addstr( " ")
             if fl < 15 :      # red: approximation of the student distribution
-                # with gaussian still bad
+                # with gaussian too bad
                 stdscr.addstr( str( acc), curses.color_pair( 1) | curses.A_BOLD)
             elif fl < 30 :   # yellow not yet good enough
                 stdscr.addstr( str( acc), curses.color_pair( 2) | curses.A_BOLD)
-            else:
+            else:               # this is fine
                 stdscr.addstr( str( acc), curses.color_pair( 3) | curses.A_BOLD)
             stdscr.addstr(" bpm ", curses.A_BOLD)
-            if acc < 2 and fl > 9:     # give the masses a nicely rounded result
-                stdscr.addstr(y, 30, "=>  ", curses.A_BOLD) # indent a bit that
-                # the result is better sticking out
+            if acc < 2 and fl > 9:     # give the huddled masses a nicely rounded result
+                stdscr.addstr(y, 30, "=>  ", curses.A_BOLD) # indent a bit so that
+                                                            # the result is sticking out
                 stdscr.addstr( " " + str( int( round( bpm))), curses.A_REVERSE)
                 stdscr.addstr(" bpm ",  curses.A_REVERSE)
                 stdscr.addstr(" ") # remove possible vestiges from rounding process(es)
-            else :          # overwright invalid results (acc >= 2)
+            else :          # overwrite invalid results (acc >= 2)
                 stdscr.addstr(y, 34, "                     ") 
 
             # Moving average: 10 samples for moving targets
