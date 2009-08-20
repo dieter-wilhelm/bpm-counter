@@ -27,6 +27,7 @@
 
 # --- TODO ---
 
+# python 3 rewrite or 2.5 compatibility mode?
 # TCL/TK, GTK version for our mice lovers and Windows pampered? ;-)
 
 # -- not so important ones --
