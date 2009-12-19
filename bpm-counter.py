@@ -5,7 +5,7 @@
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
 # Created: 2009-01
-# Version: 1.4
+# Version: 1.3
 
 # This code is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -53,13 +53,10 @@
 
 # --- History ---
 
-# -- V 1.4 --
-
-# just one tiny typo and some textual polishing 8-|
-
 # -- V 1.3 --
 
 # 1.) removed import of deprecated string module
+# 2.) a tiny typo and some textual polishing 8-|
 
 # -- V 1.2 --
 
@@ -76,7 +73,7 @@
 """
 
 __author__ = 'dieter@duenenhof-wilhelm.de (Dieter Wilhelm)'
-_version = "1.4"
+_version = "1.3"
 
 # --- os checking ---
 # necessitated by a bug in the cygwin port of ncurses? 2009-02-11
