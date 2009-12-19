@@ -5,7 +5,7 @@
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
 # Created: 2009-01
-# Version: 1.3
+# Version: 1.4
 
 # This code is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -25,10 +25,15 @@
 # program's maintainer or write to: The Free Software Foundation,
 # Inc.; 675 Massachusetts Avenue; Cambridge, MA 02139, USA.
 
+# --- Usage ---
+
+# For a summary of this file's prerequisites and its usage please have
+# a look at http://code.google.com/p/bpm-counter/
+
 # --- TODO ---
 
 # python 3 rewrite or 2.5 compatibility mode?
-# TCL/TK, GTK version for our mice lovers and Windows pampered? ;-)
+# TCL/TK or GTK version for our mice lovers and Windows pampered? ;-)
 
 # -- not so important ones --
 
@@ -50,7 +55,7 @@
 
 # -- V 1.4 --
 
-# just one tiny typo 8-(
+# just one tiny typo and some textual polishing 8-|
 
 # -- V 1.3 --
 
