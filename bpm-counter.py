@@ -97,7 +97,7 @@ if len( sys.argv) > 1:
     print """Display the frequency of keystrokes in 1/min (bpm).
 
     usage: This should be self evident ;-).
-Version 1.0
+Version 1.3
 """, sys.argv[ 0]
     exit( 1)
 
