@@ -48,6 +48,10 @@
 
 # --- History ---
 
+# -- V 1.4 --
+
+# just one tiny typo 8-(
+
 # -- V 1.3 --
 
 # 1.) removed import of deprecated string module
@@ -67,7 +71,7 @@
 """
 
 __author__ = 'dieter@duenenhof-wilhelm.de (Dieter Wilhelm)'
-_version = "1.3"
+_version = "1.4"
 
 # --- os checking ---
 # necessitated by a bug in the cygwin port of ncurses? 2009-02-11
