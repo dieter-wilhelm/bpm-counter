@@ -258,6 +258,8 @@ def tui ( n):                   # text user interface 8-)
     #     stdscr.addstr(0, 1, s)
 
     if c == ord('q') or c == ord('Q') :
+        stdscr.addstr( "\n")
+        endCurses()
         return 1
     
     Fc.TriggerCounter()
