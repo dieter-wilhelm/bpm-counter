@@ -5,7 +5,7 @@
 # Copyright (C) 2009  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
 # Created: 2009-01
-# Version: 1.3
+# Version: 1.4
 
 # This code is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -73,7 +73,7 @@
 """
 
 __author__ = 'dieter@duenenhof-wilhelm.de (Dieter Wilhelm)'
-_version = "1.3"
+_version = "1.4"
 
 # --- os checking ---
 # necessitated by a bug in the cygwin port of ncurses? 2009-02-11
