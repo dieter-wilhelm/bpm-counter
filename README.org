@@ -1,8 +1,9 @@
 # bpm-counter
 # Automatically exported from code.google.com/p/bpm-counter
-- English :: Timer for counting something regular, like the beats of music.
-- Deutsch :: Zeitnehmer um etwas Regelmäßiges zu zählen, wie etwa Takte in der Musik.
-- Francaise :: Chronométreur pour compter quelque chose reguliér, comme la mesure de la musique.
+* bpm-counter
+- English :: Timer by keypresses for counting something regular, like the beats of music.
+- Deutsch :: Zeitnehmer mittels Tastenanschläge, um etwas Regelmäßiges zu zählen, wie etwa Takte in der Musik.
+- Francaise :: Chronométreur par actionnement des touches pour compter quelque chose reguliér, comme la mesure de la musique.
 
 ** ==English:==
 The timer displays additionally some statistics of the counting precision and discards invalid or missing keystrokes for making the counts as independened as possible of input errors.  This is based on the time span between the first two strokes, these should be resonably accurate (within ± 20 % of the true average).  From then on its perfectly OK to pause and resume the count, the program returns a visual feedback for the invalid strokes.
