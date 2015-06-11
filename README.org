@@ -14,6 +14,13 @@ The statistical foundation of the precision is thorough but assumes that the mus
 
 For running this python code out of the box you should have a Gnu/Linux system (Cygwin, the free Gnu/Linux environment in case of a Windows operating system) with a working python programming language and a curses terminal control library installation.  These prerequisites are normally fullfilled for any popular Gnu/Linux distribution, like Ubuntu, SuSE or Debian. 
 
+*** Links
+- [[http://www.cygwin.com/][Cygwin: Linux environment for windows]]
+- [[http://www.python.org/][Python Programming Language]]
+- [[http://en.wikipedia.org/wiki/Beats_per_minute][BPM in Wikipedia (en)]]
+- [[http://www.all8.com/tools/bpm.htm][Online bpm counter tool]]
+
+
 [[http://www.duenenhof-wilhelm.de/dieter/bpm-counter/cygwin.jpg]]
 
 ** ==Deutsch:==
@@ -22,6 +29,8 @@ Das Programm zeigt zusätzlich Statistiken über die Genauigkeit der Zählung un
 Die statistische Grundlage der Genauigkeit ist gründlich, aber nimmt an, dass das Tempo konstant bleibt, was nicht immer über die ganze Länge einiger Stücke gegeben ist.
 
 Um den Python Code unmittelbar ausführen zu können dürfte jede populäre Gnu/Linux Distribution, wie Ubuntu, SuSE oder Debian hinreichend sein.  Unter dem Windows XP Betriebssystem klappt es auch für mich mit der freien Linux-Emulation "Cygwin", die unter Windows sowieso zu empfehlen ist. ;-)
+
+- [[http://de.wikipedia.org/wiki/Beats_per_minute][BPM in Wikipedia (de)]]
 
 ** ==Francaise:==
 Pardon, à ce moment c'est trop difficile pour moi.
