@@ -2,10 +2,11 @@
 # -*- coding: iso-8859-1 -*-
 # ncurses doesn't understand utf8 (yet)
 
-# Copyright (C) 2009  H. Dieter Wilhelm
+# Copyright (C) 2009, 2015  H. Dieter Wilhelm
 # Author: H. Dieter Wilhelm <dieter@duenenhof-wilhelm.de>
 # Created: 2009-01
-# Version: 1.4
+
+_version = "1.4"
 
 # This code is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -73,7 +74,6 @@
 """
 
 __author__ = 'dieter@duenenhof-wilhelm.de (Dieter Wilhelm)'
-_version = "1.4"
 
 # --- os checking ---
 # necessitated by a bug in the cygwin port of ncurses? 2009-02-11
@@ -94,11 +94,12 @@ if  os_name.find("CYGWIN") > -1:
 import sys
 
 if len( sys.argv) > 1:
-    print """Display the frequency of keystrokes in 1/min (bpm).
+    print """
+Display the frequency of keystrokes in 1/min (bpm).
 
-    usage: This should be self evident ;-).
-Version 1.3
-""", sys.argv[ 0]
+    Usage: Should be self evident ;-).
+
+Please run """, sys.argv[ 0], "without arguments.\n"
     exit( 1)
 
 # --- helper functions ---
@@ -244,7 +245,8 @@ def tui ( n):                   # text user interface 8-)
     stdscr.addstr( 1, 1, s, curses.A_DIM)
     stdscr.addstr( 3, 1, "Run " + str( n) + " on " +
                    host_name + " waiting", curses.A_BOLD)
-    stdscr.addstr( " (Ver. 1.2) ", curses.A_BOLD)
+    s = " (Version " + _version + ") "
+    stdscr.addstr( s, curses.A_BOLD)
     stdscr.addstr( 5, 1, "Keystrokes: 0", curses.A_DIM)
 # --- first count
     
@@ -270,7 +272,7 @@ def tui ( n):                   # text user interface 8-)
     y = 3
     stdscr.addstr( y, 1, "Run " + str( n) + " on " +
                    host_name + " active", curses.A_BOLD)
-    stdscr.addstr( " (Ver. " + _version + ")   ", curses.A_BOLD)
+    stdscr.addstr( " (Version " + _version + ")   ", curses.A_BOLD)
     y = 5
     stdscr.addstr( y, 1, "One keystroke", curses.A_DIM)
 # --- second count
@@ -299,7 +301,7 @@ def tui ( n):                   # text user interface 8-)
     td = round( time.time() - t0, 1)
     stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  +
                    " active for " + str( td) + " s", curses.A_BOLD)
-    stdscr.addstr( " (Ver. 1.3)", curses.A_BOLD)
+    stdscr.addstr( " (Version " + _version + ") ", curses.A_BOLD)
     # Keystrokes 5 DIM
     y = 5
     l = len( Fc.Times())
@@ -348,7 +350,7 @@ def tui ( n):                   # text user interface 8-)
             td = round( time.time() - t0, 1)
             stdscr.addstr( y, 1, "Run " + str( n) + " on " + host_name  +
                            " active for " + str( td) + " s", curses.A_BOLD)
-            stdscr.addstr( " (Ver. 1.2)", curses.A_BOLD)
+            stdscr.addstr( " (Version" + _version + ") ", curses.A_BOLD)
             # Keystrokes 5 DIM
             l = len( Fc.Times())
             y = 5
